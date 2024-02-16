@@ -6,15 +6,20 @@ import { records } from './users.js';
 const env = environment(process.env, logger);
 
 if (!env?.connectionString) {
+  logger.error('Connection string is missing.');
   process.exit(-1);
 }
 
-const { connectionString } = env;
-
-const pool = new pg.Pool({ connectionString });
+// Adjusted to include SSL connection setup for Render.com databases
+const pool = new pg.Pool({
+  connectionString: env.connectionString,
+  ssl: {
+    rejectUnauthorized: false, // Note: For development purposes only; for production, consider more secure handling of SSL
+  },
+});
 
 pool.on('error', (err) => {
-  console.error('Villa í tengingu við gagnagrunn, forrit hættir', err);
+  console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
 
@@ -22,20 +27,13 @@ export async function query(q, values = []) {
   let client;
   try {
     client = await pool.connect();
-  } catch (e) {
-    console.error('unable to get client from pool', e);
-    return null;
-  }
-
-  try {
     const result = await client.query(q, values);
     return result;
   } catch (e) {
-    console.error('unable to query', e);
-    console.info(q, values);
-    return null;
+    logger.error('Query failed', e, q, values);
+    throw e; // Rethrowing the error for caller to handle
   } finally {
-    client.release();
+    if (client) client.release();
   }
 }
 
