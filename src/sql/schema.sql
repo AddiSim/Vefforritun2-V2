@@ -14,3 +14,9 @@ CREATE TABLE IF NOT EXISTS public.games (
   CONSTRAINT fk_teams_home FOREIGN KEY (home) REFERENCES teams (id),
   CONSTRAINT fk_teams_away FOREIGN KEY (away) REFERENCES teams (id)
 );
+
+CREATE TABLE IF NOT EXISTS public.users (
+  id serial primary key,
+  username varchar(64) not null,
+  password varchar(255) not null
+)

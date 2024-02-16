@@ -7,7 +7,7 @@
 
 import bcrypt from 'bcrypt';
 
-const records = [
+export const records = [
   {
     id: 1,
     username: 'admin',
@@ -24,6 +24,15 @@ const records = [
 
     // 123
     password: '$2a$11$pgj3.zySyFOvIQEpD7W6Aund1Tw.BFarXxgLJxLbrzIv/4Nteisii',
+    admin: false,
+  },
+  {
+    id: 3,
+    username: 'test',
+    name: 'test',
+
+    // test
+    password: '$2b$10$aVBAy2OhgzQPq9.1c40qTOHKyNPXjzpdfRrX5PQk2ivj5MeMhLZyW',
     admin: false,
   },
 ];

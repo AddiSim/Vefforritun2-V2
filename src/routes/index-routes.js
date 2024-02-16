@@ -1,5 +1,6 @@
 import express from 'express';
 import { getGames } from '../lib/db.js';
+import { calculateStandings } from '../lib/db.js';
 
 export const indexRouter = express.Router();
 
@@ -21,8 +22,12 @@ async function leikirRoute(req, res) {
 }
 
 async function stadaRoute(req, res) {
+  const standings = await calculateStandings();
+  
   return res.render('stada', {
     title: 'Staðan',
+    standings,
+    time: new Date().toISOString(),
   });
 }
 

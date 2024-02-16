@@ -1,5 +1,37 @@
 <%- include('header') -%>
-
-admin!
-
+<h1>Admin</h1>
+<form action="/skra" method="post">
+  <% if (typeof error !== 'undefined') { %>
+    <div class="error"><%= error %></div>
+  <% } %>
+    <div>
+      <label for="date">Game Date:</label>
+      <input type="datetime-local" id="date" name="date" required>
+    </div>
+    <div>
+      <label for="home_name">Home Team:</label>
+      <select id="home_name" name="home_name" required>
+        <% teams.forEach(team => { %>
+          <option value="<%= team.id %>"><%= team.name %></option>
+        <% }); %>
+      </select>
+    </div>
+    <div>
+      <label for="home_score">Home Team Score:</label>
+      <input type="number" id="home_score" name="home_score" required min="0">
+    </div>
+    <div>
+      <label for="away_name">Away Team:</label>
+      <select id="away_name" name="away_name" required>
+        <% teams.forEach(team => { %>
+          <option value="<%= team.id %>"><%= team.name %></option>
+        <% }); %>
+      </select>
+    </div>
+    <div>
+      <label for="away_score">Away Team Score:</label>
+      <input type="number" id="away_score" name="away_score" required min="0">
+    </div>
+    <button type="submit">Skrá leik</button>
+</form>
 <%- include('footer') -%>
