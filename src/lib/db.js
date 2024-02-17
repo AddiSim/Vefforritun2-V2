@@ -155,23 +155,36 @@ export function insertGame(date, home_name, away_name, home_score, away_score) {
 
 export async function insertUsers() {
   const insertQuery = `
-    INSERT INTO users (id, username, name, password, admin)
+    INSERT INTO users (id, username, password, name, admin)
     VALUES ($1, $2, $3, $4, $5)
     ON CONFLICT (id) DO NOTHING;
   `;
 
-  for (const user of records) {
-    const {id, username, name, password, admin } = user;
-    try {
-      await pool.query(insertQuery, [id, username, name, password, admin]);
-      console.log('User inserted successfully');
-    } catch (error) {
-      console.error('Error inserting user ', error)
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN'); // Start a transaction
+
+    for (const user of records) {
+      const { id, username, name, password, admin } = user;
+      await client.query(insertQuery, [id, username, name, password, admin]);
+      console.log(`User ${username} inserted successfully`);
     }
+
+    await client.query('COMMIT'); // Commit the transaction
+  } catch (error) {
+    await client.query('ROLLBACK'); // Rollback the transaction on error
+    console.error('Error inserting users', error);
+  } finally {
+    client.release(); // Release the client back to the pool
   }
 }
 
-insertUsers().catch(console.error);
+// Call insertUsers and handle errors at the top level
+insertUsers()
+  .then(() => console.log('All users inserted successfully.'))
+  .catch(console.error);
+
 
 export async function end() {
   await pool.end();
