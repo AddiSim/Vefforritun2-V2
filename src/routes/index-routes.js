@@ -1,6 +1,6 @@
 import express from 'express';
-import { getGames } from '../lib/db.js';
-import { calculateStandings } from '../lib/db.js';
+import { getGames, calculateStandings } from '../lib/db.js';
+
 
 export const indexRouter = express.Router();
 

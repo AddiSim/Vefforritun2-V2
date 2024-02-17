@@ -1,9 +1,10 @@
 import express from 'express';
 import passport from 'passport';
-import { insertGame } from '../lib/db.js';
-import { getAllTeams } from '../lib/db.js';
-import { formatISO, subMonths, isBefore, isAfter } from 'date-fns';
 import xss from 'xss';
+import { formatISO, subMonths, isBefore, isAfter } from 'date-fns';
+import { insertGame, getAllTeams } from '../lib/db.js';
+
+
 
 export const adminRouter = express.Router();
 
@@ -37,18 +38,19 @@ function ensureLoggedIn(req, res, next) {
   return res.redirect('/login');
 }
 
-function skraRoute(req, res, next) {
+function skraRoute(res) {
   return res.render('skra', {
     title: 'Skrá leik',
   });
 }
 
 async function skraRouteInsert(req, res) {
-  let {date ,home_name, away_name, home_score, away_score} = req.body;
-  home_name = xss(home_name);
-  home_score = xss(home_score);
-  away_name = xss(away_name);
-  away_score = xss(away_score);
+  let {date ,homeName, awayName, homeScore, awayScore} = req.body;
+  date = xss(date);
+  homeName = xss(homeName);
+  homeScore = xss(homeScore);
+  awayName = xss(awayName);
+  awayScore = xss(awayScore);
 
   const today = new Date();
   const twoMonthsAgo = subMonths(new Date(), 2);
@@ -61,16 +63,18 @@ async function skraRouteInsert(req, res) {
 
   // Ensure the game date is not more than two months old
   if (isBefore(submittedDate, twoMonthsAgo)) {
-    return res.status(400).render('admin', { error: 'Game date cannot be more than two months old.' });
+    return res.status(400).render('admin', 
+    { error: 'Game date cannot be more than two months old.' });
   }
 
   try {
-    await insertGame(formatISO(submittedDate), home_name, away_name, home_score, away_score);
+    await insertGame(formatISO(submittedDate), homeName, awayName, homeScore, awayScore);
     res.redirect('/leikir'); // Adjust the redirect as needed
   } catch (error) {
     console.error('Error inserting game:', error);
     res.status(500).send('Error inserting game');
   }
+  return undefined;
 }
 
 adminRouter.get('/login', indexRoute);

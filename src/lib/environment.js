@@ -1,4 +1,5 @@
 import 'dotenv/config';
+
 const DEFAULT_PORT = 3000;
 
 /**

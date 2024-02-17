@@ -41,10 +41,10 @@ export async function getGames() {
   const q = `
     SELECT
       date,
-      home_team.name AS home_name,
-      home_score,
-      away_team.name AS away_name,
-      away_score
+      home_team.name AS homeName,
+      homeScore,
+      away_team.name AS awayName,
+      awayScore
     FROM
       games
     LEFT JOIN
@@ -65,12 +65,12 @@ export async function getGames() {
       const game = {
         date: row.date,
         home: {
-          name: row.home_name,
-          score: row.home_score,
+          name: row.homeName,
+          score: row.homeScore,
         },
         away: {
-          name: row.away_name,
-          score: row.away_score,
+          name: row.awayName,
+          score: row.awayScore,
         },
       };
       games.push(game);
@@ -78,15 +78,16 @@ export async function getGames() {
 
     return games;
   }
+  return [];
 }
 
 export async function calculateStandings() {
   const queryText = `
     SELECT
-      ht.name AS home_name,
-      g.home_score,
-      at.name AS away_name,
-      g.away_score
+      ht.name AS homeName,
+      g.homeScore,
+      at.name AS awayName,
+      g.awayScore
     FROM
       games g
     LEFT JOIN
@@ -101,31 +102,34 @@ export async function calculateStandings() {
 
     
     result.rows.forEach(row => {
-      const homeTeam = row.home_name;
-      const awayTeam = row.away_name;
+      const homeTeam = row.homeName;
+      const awayTeam = row.awayName;
 
       // Initialize if not exists
-      if (!standingsObj[homeTeam]) standingsObj[homeTeam] = { name: homeTeam, wins: 0, draws: 0, losses: 0, points: 0 };
-      if (!standingsObj[awayTeam]) standingsObj[awayTeam] = { name: awayTeam, wins: 0, draws: 0, losses: 0, points: 0 };
+      if (!standingsObj[homeTeam]) standingsObj[homeTeam] = 
+        { name: homeTeam, wins: 0, draws: 0, losses: 0, points: 0 };
+      if (!standingsObj[awayTeam]) standingsObj[awayTeam] = 
+        { name: awayTeam, wins: 0, draws: 0, losses: 0, points: 0 };
 
       
-      if (row.home_score > row.away_score) {
-        standingsObj[homeTeam].wins++;
+      if (row.homeScore > row.awayScore) {
+        standingsObj[homeTeam].wins+= 1;
         standingsObj[homeTeam].points += 3;
-        standingsObj[awayTeam].losses++;
-      } else if (row.home_score < row.away_score) {
-        standingsObj[awayTeam].wins++;
+        standingsObj[awayTeam].losses+= 1;
+      } else if (row.homeScore < row.awayScore) {
+        standingsObj[awayTeam].wins+= 1;
         standingsObj[awayTeam].points += 3;
-        standingsObj[homeTeam].losses++;
+        standingsObj[homeTeam].losses+= 1;
       } else {
-        standingsObj[homeTeam].draws++;
-        standingsObj[awayTeam].draws++;
+        standingsObj[homeTeam].draws+= 1;
+        standingsObj[awayTeam].draws+= 1;
         standingsObj[homeTeam].points += 1;
         standingsObj[awayTeam].points += 1;
       }
     });
 
-    const standingsArray = Object.values(standingsObj).sort((a, b) => b.points - a.points || b.wins - a.wins); // Sort by points, then wins
+    const standingsArray = Object.values(standingsObj).sort((a, b) => 
+      b.points - a.points || b.wins - a.wins); 
 
     return standingsArray;
 
@@ -146,11 +150,11 @@ export async function getAllTeams() {
   }
 }
 
-export function insertGame(date, home_name, away_name, home_score, away_score) {
+export function insertGame(date, homeName, awayName, homeScore, awayScore) {
   const q =
-    'insert into games (date, home, away, home_score, away_score) values ($1, $2, $3, $4, $5);';
+    'insert into games (date, home, away, homeScore, awayScore) values ($1, $2, $3, $4, $5);';
 
-  const result = query(q, [date, home_name, away_name, home_score, away_score]);
+  query(q, [date, homeName, awayName, homeScore, awayScore]);
 }
 
 export async function insertUsers() {
@@ -163,26 +167,24 @@ export async function insertUsers() {
   const client = await pool.connect();
 
   try {
-    await client.query('BEGIN'); // Start a transaction
+    await client.query('BEGIN'); 
 
     for (const user of records) {
       const { id, username, name, password, admin } = user;
-      await client.query(insertQuery, [id, username, name, password, admin]);
-      console.log(`User ${username} inserted successfully`);
+      client.query(insertQuery, [id, username, name, password, admin]);
     }
 
-    await client.query('COMMIT'); // Commit the transaction
+    await client.query('COMMIT'); 
   } catch (error) {
-    await client.query('ROLLBACK'); // Rollback the transaction on error
+    await client.query('ROLLBACK'); 
     console.error('Error inserting users', error);
   } finally {
-    client.release(); // Release the client back to the pool
+    client.release(); 
   }
 }
 
-// Call insertUsers and handle errors at the top level
+
 insertUsers()
-  .then(() => console.log('All users inserted successfully.'))
   .catch(console.error);
 
 
