@@ -45,12 +45,12 @@ function skraRoute(res) {
 }
 
 async function skraRouteInsert(req, res) {
-  let {date ,homeName, awayName, homeScore, awayScore} = req.body;
+  let {date ,homename, awayname, homescore, awayscore} = req.body;
   date = xss(date);
-  homeName = xss(homeName);
-  homeScore = xss(homeScore);
-  awayName = xss(awayName);
-  awayScore = xss(awayScore);
+  homename = xss(homename);
+  homescore = xss(homescore);
+  awayname = xss(awayname);
+  awayscore = xss(awayscore);
 
   const today = new Date();
   const twoMonthsAgo = subMonths(new Date(), 2);
@@ -68,7 +68,7 @@ async function skraRouteInsert(req, res) {
   }
 
   try {
-    await insertGame(formatISO(submittedDate), homeName, awayName, homeScore, awayScore);
+    await insertGame(formatISO(submittedDate), homename, awayname, homescore, awayscore);
     res.redirect('/leikir'); // Adjust the redirect as needed
   } catch (error) {
     console.error('Error inserting game:', error);

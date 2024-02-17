@@ -41,16 +41,16 @@ export async function getGames() {
   const q = `
     SELECT
       date,
-      home_team.name AS homeName,
-      homeScore,
-      away_team.name AS awayName,
-      awayScore
+      home_team.name AS "homename",
+      "homescore",
+      away_team.name AS "awayname",
+      "awayscore"
     FROM
       games
     LEFT JOIN
-      teams AS home_team ON home_team.id = games.home
+      teams AS home_team ON home_team.id = games."homename"
     LEFT JOIN
-      teams AS away_team ON away_team.id = games.away
+      teams AS away_team ON away_team.id = games."awayname"
     WHERE
       date <= CURRENT_DATE
       AND date >= CURRENT_DATE - INTERVAL '2 months'
@@ -65,12 +65,12 @@ export async function getGames() {
       const game = {
         date: row.date,
         home: {
-          name: row.homeName,
-          score: row.homeScore,
+          name: row.homename,
+          score: row.homescore,
         },
         away: {
-          name: row.awayName,
-          score: row.awayScore,
+          name: row.awayname,
+          score: row.awayscore,
         },
       };
       games.push(game);
@@ -84,16 +84,16 @@ export async function getGames() {
 export async function calculateStandings() {
   const queryText = `
     SELECT
-      ht.name AS homeName,
-      g.homeScore,
-      at.name AS awayName,
-      g.awayScore
+      ht.name AS "homename",
+      g."homescore",
+      at.name AS "awayname",
+      g."awayscore"
     FROM
       games g
     LEFT JOIN
-      teams ht ON ht.id = g.home
+      teams ht ON ht.id = g."homename"
     LEFT JOIN
-      teams at ON at.id = g.away
+      teams at ON at.id = g."awayname"
   `;
 
   try {
@@ -102,8 +102,8 @@ export async function calculateStandings() {
 
     
     result.rows.forEach(row => {
-      const homeTeam = row.homeName;
-      const awayTeam = row.awayName;
+      const homeTeam = row.homename;
+      const awayTeam = row.awayname;
 
       // Initialize if not exists
       if (!standingsObj[homeTeam]) standingsObj[homeTeam] = 
@@ -112,11 +112,11 @@ export async function calculateStandings() {
         { name: awayTeam, wins: 0, draws: 0, losses: 0, points: 0 };
 
       
-      if (row.homeScore > row.awayScore) {
+      if (row.homescore > row.awayscore) {
         standingsObj[homeTeam].wins+= 1;
         standingsObj[homeTeam].points += 3;
         standingsObj[awayTeam].losses+= 1;
-      } else if (row.homeScore < row.awayScore) {
+      } else if (row.homescore < row.awayscore) {
         standingsObj[awayTeam].wins+= 1;
         standingsObj[awayTeam].points += 3;
         standingsObj[homeTeam].losses+= 1;
@@ -150,11 +150,11 @@ export async function getAllTeams() {
   }
 }
 
-export function insertGame(date, homeName, awayName, homeScore, awayScore) {
+export function insertGame(date, homename, awayname, homescore, awayscore) {
   const q =
-    'insert into games (date, home, away, homeScore, awayScore) values ($1, $2, $3, $4, $5);';
+    'insert into games (date, homename, awayname, homescore, awayscore) values ($1, $2, $3, $4, $5);';
 
-  query(q, [date, homeName, awayName, homeScore, awayScore]);
+  query(q, [date, homename, awayname, homescore, awayscore]);
 }
 
 export async function insertUsers() {
