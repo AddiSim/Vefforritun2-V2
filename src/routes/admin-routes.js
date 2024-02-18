@@ -27,9 +27,7 @@ async function adminRoute(req, res) {
   });
 }
 
-// TODO færa á betri stað
-// Hjálpar middleware sem athugar hvort notandi sé innskráður og hleypir okkur
-// þá áfram, annars sendir á /login
+
 function ensureLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
@@ -56,12 +54,12 @@ async function skraRouteInsert(req, res) {
   const twoMonthsAgo = subMonths(new Date(), 2);
   const submittedDate = new Date(date);
 
-  // Ensure the game date is not in the future
+  
   if (isAfter(submittedDate, today)) {
     return res.status(400).render('admin', { error: 'Game date cannot be in the future.' });
   }
 
-  // Ensure the game date is not more than two months old
+
   if (isBefore(submittedDate, twoMonthsAgo)) {
     return res.status(400).render('admin', 
     { error: 'Game date cannot be more than two months old.' });
@@ -69,7 +67,7 @@ async function skraRouteInsert(req, res) {
 
   try {
     await insertGame(formatISO(submittedDate), homename, awayname, homescore, awayscore);
-    res.redirect('/leikir'); // Adjust the redirect as needed
+    res.redirect('/leikir'); 
   } catch (error) {
     console.error('Error inserting game:', error);
     res.status(500).send('Error inserting game');

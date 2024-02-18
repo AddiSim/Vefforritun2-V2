@@ -10,11 +10,11 @@ if (!env?.connectionString) {
   process.exit(-1);
 }
 
-// Adjusted to include SSL connection setup for Render.com databases
+
 const pool = new pg.Pool({
   connectionString: env.connectionString,
   ssl: {
-    rejectUnauthorized: false, // Note: For development purposes only; for production, consider more secure handling of SSL
+    rejectUnauthorized: false, 
   },
 });
 
@@ -31,7 +31,7 @@ export async function query(q, values = []) {
     return result;
   } catch (e) {
     logger.error('Query failed', e, q, values);
-    throw e; // Rethrowing the error for caller to handle
+    throw e; 
   } finally {
     if (client) client.release();
   }
@@ -105,7 +105,7 @@ export async function calculateStandings() {
       const homeTeam = row.homename;
       const awayTeam = row.awayname;
 
-      // Initialize if not exists
+      
       if (!standingsObj[homeTeam]) standingsObj[homeTeam] = 
         { name: homeTeam, wins: 0, draws: 0, losses: 0, points: 0 };
       if (!standingsObj[awayTeam]) standingsObj[awayTeam] = 

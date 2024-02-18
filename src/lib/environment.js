@@ -64,7 +64,6 @@ export function environment(env, logger) {
 
   parsedEnv = {
     port: usedPort,
-    // We've validate both above so the `?? ''` is just to satisfy the types
     sessionSecret: sessionSecret ?? '',
     connectionString: connectionString ?? '',
   };
